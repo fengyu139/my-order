@@ -1,0 +1,16 @@
+html,body{
+  margin: 0;
+  height: 100%;
+  /* --nut-button-default-padding:6px */
+  --nut-popup-close-icon-margin: 2px;
+  --nut-table-cols-padding:6px;
+}
+#app {
+  max-width: 750px;
+  margin: 0 auto;
+  /* height: 100%;
+  overflow: hidden; */
+}
+/* :root {
+  --nut-button-primary-background-color: green;
+} */
