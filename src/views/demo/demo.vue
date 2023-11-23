@@ -103,7 +103,6 @@ const token = ref("");
 const expected = ref("");
 const money = ref("");
 const checkbox1 = ref(false);
-const testNum = ref(0);
 </script>
 
 <template>
@@ -152,24 +151,6 @@ const testNum = ref(0);
         </li>
       </ul>
     </div> -->
-    <div class="mt-6">
-      <!-- <nut-button type="primary" @click="submit">提 交</nut-button> -->
-      <nut-button type="primary" block @click="start">提 交</nut-button>
-      <nut-button style="margin-top: 18px" type="warning" block @click="stop"
-        >停 止</nut-button
-      >
-      <div class="mt-[12px]"></div>
-      <nut-checkbox v-model="checkbox1" label="是否为3注"
-        >是否为3注</nut-checkbox
-      >
-      <NutInput placeholder="请输入单注金额" v-model="money"></NutInput>
-      <NutInput placeholder="请输入目标值" v-model="expected"></NutInput>
-      <NutInput placeholder="请输入token" v-model="token"></NutInput>
-      <nut-button style="margin-top: 18px" type="success" block @click="start2"
-        >开 始</nut-button
-      >
-    </div>
-    <AbNumInput v-model="testNum"></AbNumInput>
   </div>
 </template>
 
