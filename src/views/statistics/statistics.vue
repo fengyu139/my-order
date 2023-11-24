@@ -127,9 +127,11 @@ nextTick(() => {
 // setTimeout(() => {
 //   optionBar.series[0].data = [12, 43, 56, 33, 56, 33, 12];
 // }, 3000);
+const totalMoney = ref(0);
 const getBarData = async () => {
   let res = await http.post("/chartBar", queryTime);
   console.log(res);
+  totalMoney.value = res.data.bar.totalMoney;
   optionBar.series[0].data = res.data.bar.values;
   optionBar.xAxis[0].data = res.data.bar.times;
   optionPie.series[0].data = res.data.pie;
@@ -158,11 +160,12 @@ watchEffect(() => {
           <nut-radio shape="button" label="2">近3天</nut-radio>
           <nut-radio shape="button" label="6">近7天</nut-radio>
           <nut-radio shape="button" label="14">近15天</nut-radio>
-          <nut-radio shape="button" label="49">近一月</nut-radio>
+          <nut-radio shape="button" label="29">近一月</nut-radio>
         </nut-radio-group>
       </nut-cell>
     </nut-sticky>
     <div>
+      <h2 class="text-center">营业额总计:{{ totalMoney }}</h2>
       <div ref="chartDomBar" style="height: 48vh"></div>
     </div>
     <div class="mt-[18px]">
