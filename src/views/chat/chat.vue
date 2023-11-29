@@ -109,11 +109,7 @@ const downloadFile = (url: string) => {
   a.download = url.slice(url.lastIndexOf("/"), url.length);
   a.click();
 };
-onMounted(() => {
-  setTimeout(() => {
-    chatBox.value.scrollTop = chatBox.value.scrollHeight;
-  }, 100);
-});
+onMounted(() => {});
 const pageSize = ref(10);
 const pageNum = ref(1);
 const getMsgList = async () => {
@@ -122,6 +118,11 @@ const getMsgList = async () => {
   });
   msgList.value.unshift(...res.data);
   refresh.value = false;
+  if (pageNum.value == 1) {
+    setTimeout(() => {
+      chatBox.value.scrollTop = chatBox.value.scrollHeight;
+    }, 100);
+  }
   if (res.data.length == 0) {
     stopWatching();
   }
@@ -208,7 +209,9 @@ const inputFun = () => {
               : 'ml-[12px] mr-[12px] bg-green-500 text-white',
           ]"
         >
-          <span>{{ item.msg }}</span>
+          <span class="inline-block w-full overflow-hidden">{{
+            item.msg
+          }}</span>
           <span
             class="absolute text-[10px] text-gray-400 bottom-[-14px] whitespace-nowrap"
             :class="[item.chatId == chatId ? 'right-0' : 'left-0']"
