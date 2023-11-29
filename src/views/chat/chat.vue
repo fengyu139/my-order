@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { showToast } from "@nutui/nutui";
+import { showToast, showImagePreview } from "@nutui/nutui";
+import "@nutui/nutui/dist/packages/imagepreview/style";
 import { IconFont } from "@nutui/icons-vue";
 import http from "@/http/index";
+import dayjs from "dayjs";
 import "@nutui/icons-vue/dist/style_iconfont.css";
 const chatId = useStorage("chatId", "");
 chatId.value = useRoute().query.id as string;
@@ -131,7 +133,7 @@ const refreshFun = () => {
     <nut-pull-refresh v-model="refresh" @refresh="refreshFun">
       <ul>
         <li
-          class="flex mt-[10px]"
+          class="flex mt-[10px] mb-[24px]"
           :class="{ 'flex-row-reverse': item.chatId == chatId }"
           v-for="item in msgList"
           :key="item.chatId"
@@ -140,8 +142,11 @@ const refreshFun = () => {
             item.name
           }}</nut-avatar>
           <div
+            @click="
+              showImagePreview({ show: true, images: [{ src: item.picImg }] })
+            "
             v-if="item.type == 'img'"
-            :class="[item.chatId == chatId ? 'mr-[12px]' : 'ml-[12px]']"
+            class="mx-[12px]"
           >
             <img :src="item.picImg" alt="" srcset="" />
           </div>
@@ -165,9 +170,18 @@ const refreshFun = () => {
           <div
             v-else
             class="bg-gray-100 rounded-lg text-[14px] p-[4px] relative"
-            :class="[item.chatId == chatId ? 'mr-[12px]' : 'ml-[12px]']"
+            :class="[
+              item.chatId == chatId
+                ? 'mr-[12px] ml-[12px]'
+                : 'ml-[12px] mr-[12px] bg-green-500 text-white',
+            ]"
           >
             <span>{{ item.msg }}</span>
+            <span
+              class="absolute text-[10px] text-gray-400 bottom-[-14px] whitespace-nowrap"
+              :class="[item.chatId == chatId ? 'right-0' : 'left-0']"
+              >{{ dayjs(item.time).format("MM-DD HH:mm:ss") }}</span
+            >
           </div>
         </li>
         <!-- <li class="flex mt-[10px] flex-row-reverse">
