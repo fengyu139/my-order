@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sample Mobile Page</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+    }
+    .header {
+        background-color: #fff;
+        padding: 10px;
+        text-align: center;
+    }
+    .banner {
+        width: 100%;
+        height: auto;
+        margin-bottom: 10px;
+    }
+    .stats {
+        background-color: #f2f2f2;
+        padding: 20px;
+        display: flex;
+        justify-content: space-around;
+        text-align: center;
+    }
+    .stats div {
+        border-right: 1px solid #d9d9d9;
+        padding: 0 10px;
+    }
+    .stats div:last-child {
+        border-right: none;
+    }
+    .menu {
+        background-color: #fff;
+        padding: 10px;
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
+    }
+    .menu-item {
+        background-color: #eee;
+        padding: 20px;
+        text-align: center;
+        border-radius: 10px;
+    }
+</style>
+</head>
+<body>
+<div class="header">
+    <p>9:41</p>
+</div>
+<img src="banner.jpg" alt="Promotional Banner" class="banner">
+<div class="stats">
+    <div>
+        <p>¥2,727.87</p>
+        <p>some text</p>
+    </div>
+    <div>
+        <p>¥157.34</p>
+        <p>another text</p>
+    </div>
+</div>
+<div class="menu">
+    <div class="menu-item">Item 1</div>
+    <div class="menu-item">Item 2</div>
+    <div class="menu-item">Item 3</div>
+    <div class="menu-item">Item 4</div>
+    <!-- More menu items here -->
+</div>
+</body>
+</html>

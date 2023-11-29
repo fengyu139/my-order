@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { showToast, showImagePreview } from "@nutui/nutui";
+import debounce from "lodash/debounce";
+import { useScroll } from "@vueuse/core";
 import "@nutui/nutui/dist/packages/imagepreview/style";
 import { IconFont } from "@nutui/icons-vue";
 import http from "@/http/index";
@@ -8,6 +10,9 @@ import "@nutui/icons-vue/dist/style_iconfont.css";
 const chatId = useStorage("chatId", "");
 chatId.value = useRoute().query.id as string;
 const socket: any = inject("socket");
+import loadImg from "@/assets/loading";
+console.log(loadImg);
+
 const msgForm = reactive({
   msg: "",
   name: chatId.value == "1" ? "小扈" : "老胡",
@@ -35,6 +40,9 @@ socket.on("chat", (data: any) => {
   nextTick(() => {
     chatBox.value.scrollTop = chatBox.value.scrollHeight;
   });
+});
+socket.on("chatEnter", (data: any) => {
+  enterShow.value = data.entering;
 });
 const fileToDataURL = (file: Blob): Promise<any> => {
   return new Promise((resolve) => {
@@ -115,76 +123,100 @@ const getMsgList = async () => {
   msgList.value.unshift(...res.data);
   refresh.value = false;
   if (res.data.length == 0) {
+    stopWatching();
   }
 };
 getMsgList();
 const refresh = ref(false);
-
-const refreshFun = () => {
+const { y, directions } = useScroll(chatBox, {
+  offset: { top: 30, bottom: 30, right: 30, left: 30 },
+});
+const refreshFun = debounce(async () => {
   pageNum.value++;
-  getMsgList();
+  await getMsgList();
+  y.value = 400;
+}, 500);
+
+const stopWatching = watch(y, () => {
+  if (y.value < 11 && directions.top) {
+    refreshFun();
+  }
+});
+const entering = ref(false);
+const enterShow = ref(false);
+let timer: any = null;
+const inputFun = () => {
+  clearTimeout(timer);
+  if (!entering.value) {
+    entering.value = true;
+    socket.emit("chatEnter", { entering: true });
+  }
+  timer = setTimeout(() => {
+    entering.value = false;
+    socket.emit("chatEnter", { entering: false });
+  }, 1500);
 };
 </script>
 
 <template>
-  <nut-navbar title="聊天室" fixed class="bg-gray-300"> </nut-navbar>
+  <nut-navbar title="111111" fixed class="bg-gray-300"> </nut-navbar>
 
   <div style="height: calc(100vh - 96px)" class="overflow-auto" ref="chatBox">
-    <nut-pull-refresh v-model="refresh" @refresh="refreshFun">
-      <ul>
-        <li
-          class="flex mt-[10px] mb-[24px]"
-          :class="{ 'flex-row-reverse': item.chatId == chatId }"
-          v-for="item in msgList"
-          :key="item.chatId"
+    <!-- <nut-pull-refresh v-model="refresh" @refresh="refreshFun"> -->
+    <ul>
+      <li
+        class="flex mt-[10px] mb-[24px]"
+        :class="{ 'flex-row-reverse': item.chatId == chatId }"
+        v-for="item in msgList"
+        :key="item.chatId"
+      >
+        <nut-avatar color="rgb(245, 106, 0)" bg-color="rgb(253, 227, 207)">{{
+          item.name
+        }}</nut-avatar>
+        <div
+          @click="
+            showImagePreview({ show: true, images: [{ src: item.picImg }] })
+          "
+          v-if="item.type == 'img'"
+          class="mx-[12px]"
         >
-          <nut-avatar color="rgb(245, 106, 0)" bg-color="rgb(253, 227, 207)">{{
-            item.name
-          }}</nut-avatar>
-          <div
-            @click="
-              showImagePreview({ show: true, images: [{ src: item.picImg }] })
-            "
-            v-if="item.type == 'img'"
-            class="mx-[12px]"
+          <img :src="item.picImg" alt="" srcset="" />
+        </div>
+        <div
+          v-else-if="item.type == 'file'"
+          class="flex items-center max-w-[82%] overflow-hidden"
+          :class="[item.chatId == chatId ? 'mr-[12px]' : 'ml-[12px]']"
+        >
+          <span class="text-[12px]"
+            >文件：{{
+              item.picImg.slice(
+                item.picImg.lastIndexOf("/"),
+                item.picImg.length
+              )
+            }}</span
           >
-            <img :src="item.picImg" alt="" srcset="" />
-          </div>
-          <div
-            v-else-if="item.type == 'file'"
-            class="flex items-center"
-            :class="[item.chatId == chatId ? 'mr-[12px]' : 'ml-[12px]']"
+          <NutButton size="small" @click="downloadFile(item.picImg)"
+            >点击下载</NutButton
           >
-            <span class="text-[12px]"
-              >文件：{{
-                item.picImg.slice(
-                  item.picImg.lastIndexOf("/"),
-                  item.picImg.length
-                )
-              }}</span
-            >
-            <NutButton size="small" @click="downloadFile(item.picImg)"
-              >点击下载</NutButton
-            >
-          </div>
-          <div
-            v-else
-            class="bg-gray-100 rounded-lg text-[14px] p-[4px] relative"
-            :class="[
-              item.chatId == chatId
-                ? 'mr-[12px] ml-[12px]'
-                : 'ml-[12px] mr-[12px] bg-green-500 text-white',
-            ]"
+        </div>
+        <div
+          v-else
+          class="bg-gray-100 rounded-lg text-[14px] max-w-[82%] p-[4px] relative"
+          :class="[
+            item.chatId == chatId
+              ? 'mr-[12px] ml-[12px]'
+              : 'ml-[12px] mr-[12px] bg-green-500 text-white',
+          ]"
+        >
+          <span>{{ item.msg }}</span>
+          <span
+            class="absolute text-[10px] text-gray-400 bottom-[-14px] whitespace-nowrap"
+            :class="[item.chatId == chatId ? 'right-0' : 'left-0']"
+            >{{ dayjs(item.time).format("MM-DD HH:mm:ss") }}</span
           >
-            <span>{{ item.msg }}</span>
-            <span
-              class="absolute text-[10px] text-gray-400 bottom-[-14px] whitespace-nowrap"
-              :class="[item.chatId == chatId ? 'right-0' : 'left-0']"
-              >{{ dayjs(item.time).format("MM-DD HH:mm:ss") }}</span
-            >
-          </div>
-        </li>
-        <!-- <li class="flex mt-[10px] flex-row-reverse">
+        </div>
+      </li>
+      <!-- <li class="flex mt-[10px] flex-row-reverse">
         <nut-avatar color="rgb(245, 106, 0)" bg-color="rgb(253, 227, 207)"
           >老胡</nut-avatar
         >
@@ -194,11 +226,21 @@ const refreshFun = () => {
           <span>这是小嘻嘻嘻嘻嘻嘻嘻嘻嘻嘻嘻哦行哦行哦谢谢 </span>
         </div>
       </li> -->
-      </ul>
-    </nut-pull-refresh>
+    </ul>
   </div>
-  <div>
-    <nut-input v-model="msgForm.msg" placeholder="请输入内容" clearable>
+  <div class="relative">
+    <span
+      v-show="enterShow"
+      class="text-red-500 absolute top-[-10px] text-[12px] left-[4px] z-10 bg-white flex"
+      >对方正在输入中<img src="@/assets/loading.js" alt="" srcset=""
+    /></span>
+    <nut-input
+      v-model="msgForm.msg"
+      @keyup.enter="sendMsg"
+      @input="inputFun"
+      placeholder="请输入内容"
+      clearable
+    >
       <template #right>
         <div class="flex items-center">
           <nut-uploader
