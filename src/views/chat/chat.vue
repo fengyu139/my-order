@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { showToast, showImagePreview } from "@nutui/nutui";
+import { showToast, showImagePreview, showDialog } from "@nutui/nutui";
+import { HorizontalN, Refresh, Del } from "@nutui/icons-vue";
 import debounce from "lodash/debounce";
 import { useScroll } from "@vueuse/core";
 import "@nutui/nutui/dist/packages/imagepreview/style";
@@ -7,6 +8,7 @@ import { IconFont } from "@nutui/icons-vue";
 import http from "@/http/index";
 import dayjs from "dayjs";
 import "@nutui/icons-vue/dist/style_iconfont.css";
+import gsap from "gsap";
 const chatId = useStorage("chatId", "");
 chatId.value = useRoute().query.id as string;
 const socket: any = inject("socket");
@@ -19,31 +21,45 @@ const msgForm = reactive({
   chatId: chatId.value,
   picImg: "",
   type: "text",
+  msgId: "",
 });
-const chatBox = ref(null);
+const chatBox: any = ref(null);
 const myUploader = ref(null);
 const msgList: any = ref([]);
+//发送消息
 const sendMsg = () => {
   if (msgForm.msg == "") return showToast.fail("请输入内容");
   msgForm.type = "text";
+  msgForm.msgId = new Date().getTime().toString();
   socket.emit("chat", msgForm);
   msgList.value.push(JSON.parse(JSON.stringify(msgForm)));
   msgForm.msg = "";
   nextTick(() => {
-    chatBox.value.scrollTop = chatBox.value.scrollHeight;
+    gsap.to(chatBox.value, {
+      scrollTop: chatBox.value.scrollHeight,
+      duration: 0.3,
+    });
   });
 };
 socket.on("chat", (data: any) => {
   msgList.value.push(data);
-  console.log(chatBox.value);
-
   nextTick(() => {
-    chatBox.value.scrollTop = chatBox.value.scrollHeight;
+    gsap.to(chatBox.value, {
+      scrollTop: chatBox.value.scrollHeight,
+      duration: 0.3,
+    });
   });
 });
 socket.on("chatEnter", (data: any) => {
   enterShow.value = data.entering;
 });
+socket.on("chatDelete", (data: any) => {
+  let msgIndex = msgList.value.findIndex((item: any) => {
+    return item.msgId == data;
+  });
+  msgList.value.splice(msgIndex, 1);
+});
+
 const fileToDataURL = (file: Blob): Promise<any> => {
   return new Promise((resolve) => {
     const reader = new FileReader();
@@ -70,8 +86,10 @@ const dataURLToImage = (dataURL: string): Promise<HTMLImageElement> => {
 const successUpload = (res: any) => {
   msgForm.picImg = JSON.parse(res.responseText).data;
   // showToast.success("上传成功");
+  msgForm.msgId = new Date().getTime().toString();
   socket.emit("chat", msgForm);
   myUploader.value.clearUploadQueue();
+  msgForm.picImg = "";
 };
 const failure = (err) => {
   showToast.fail(err);
@@ -120,8 +138,12 @@ const getMsgList = async () => {
   refresh.value = false;
   if (pageNum.value == 1) {
     setTimeout(() => {
-      chatBox.value.scrollTop = chatBox.value.scrollHeight;
-    }, 100);
+      gsap.to(chatBox.value, {
+        scrollTop: chatBox.value.scrollHeight,
+        duration: 0.5,
+      });
+      // chatBox.value.scrollTop = chatBox.value.scrollHeight;
+    }, 800);
   }
   if (res.data.length == 0) {
     stopWatching();
@@ -137,7 +159,11 @@ const refreshFun = debounce(async () => {
   await getMsgList();
   y.value = 400;
 }, 500);
-
+const refreshFun2 = () => {
+  pageNum.value = 1;
+  msgList.value = [];
+  getMsgList();
+};
 const stopWatching = watch(y, () => {
   if (y.value < 11 && directions.top) {
     refreshFun();
@@ -157,10 +183,40 @@ const inputFun = () => {
     socket.emit("chatEnter", { entering: false });
   }, 1500);
 };
+const overlayShow = ref(false);
+const sheetVisible = ref(false);
+const menuItems = reactive([
+  { name: "删除当条消息", type: "delete" },
+  { name: "复制消息", type: "copy" },
+]);
+const msgId = ref("");
+const choose = (item: any) => {
+  if (item.type == "delete") {
+    socket.emit("chatDelete", msgId.value);
+    showToast.success("删除成功");
+  } else {
+    showToast.success("复制成功");
+  }
+};
 </script>
 
 <template>
-  <nut-navbar title="111111" fixed class="bg-gray-300"> </nut-navbar>
+  <nut-navbar
+    title="小小聊天室"
+    fixed
+    class="bg-gray-300"
+    @click-right="overlayShow = true"
+    @click-back="refreshFun2"
+  >
+    <template #left>
+      <div class="flex items-center">
+        <span> 刷新</span><Refresh width="18px" />
+      </div>
+    </template>
+    <template #right>
+      <HorizontalN class="right" width="18px"></HorizontalN>
+    </template>
+  </nut-navbar>
 
   <div style="height: calc(100vh - 96px)" class="overflow-auto" ref="chatBox">
     <!-- <nut-pull-refresh v-model="refresh" @refresh="refreshFun"> -->
@@ -171,9 +227,15 @@ const inputFun = () => {
         v-for="item in msgList"
         :key="item.chatId"
       >
-        <nut-avatar color="rgb(245, 106, 0)" bg-color="rgb(253, 227, 207)">{{
-          item.name
-        }}</nut-avatar>
+        <nut-avatar
+          @click="
+            sheetVisible = true;
+            msgId = item.msgId;
+          "
+          color="rgb(245, 106, 0)"
+          bg-color="rgb(253, 227, 207)"
+          >{{ item.name }}</nut-avatar
+        >
         <div
           @click="
             showImagePreview({ show: true, images: [{ src: item.picImg }] })
@@ -209,9 +271,10 @@ const inputFun = () => {
               : 'ml-[12px] mr-[12px] bg-green-500 text-white',
           ]"
         >
-          <span class="inline-block w-full overflow-hidden">{{
-            item.msg
-          }}</span>
+          <span
+            class="inline-block w-full overflow-hidden"
+            v-html="item.msg"
+          ></span>
           <span
             class="absolute text-[10px] text-gray-400 bottom-[-14px] whitespace-nowrap"
             :class="[item.chatId == chatId ? 'right-0' : 'left-0']"
@@ -228,6 +291,10 @@ const inputFun = () => {
         >
           <span>这是小嘻嘻嘻嘻嘻嘻嘻嘻嘻嘻嘻哦行哦行哦谢谢 </span>
         </div>
+      </li> -->
+      <!-- <li class="text-[14px]">这是小嘻嘻嘻嘻<i class="face face-1"></i></li>
+      <li>
+       
       </li> -->
     </ul>
   </div>
@@ -268,9 +335,29 @@ const inputFun = () => {
       </template>
     </nut-input>
   </div>
+  <nut-overlay v-model:visible="overlayShow">
+    <div class="wrapper">
+      <img src="@/assets/chatBg.jpg" class="w-full" alt="" srcset="" />
+    </div>
+  </nut-overlay>
+  <nut-action-sheet
+    v-model:visible="sheetVisible"
+    cancel-txt="取消"
+    :menu-items="menuItems"
+    @choose="choose"
+  />
 </template>
 
 <style lang="scss" scoped>
+.face {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  background: url("@/assets/bq.png") no-repeat;
+  background-position: 10px 10px;
+  background-size: 100% 100%;
+  vertical-align: bottom;
+}
 :deep(.nut-pull-refresh) {
   height: auto;
 }
