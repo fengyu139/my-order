@@ -14,7 +14,7 @@ chatId.value = useRoute().query.id as string;
 const socket: any = inject("socket");
 import loadImg from "@/assets/loading";
 console.log(loadImg);
-const { copy } = useClipboard();
+const { copy } = useClipboard({ legacy: true });
 const msgForm = reactive({
   msg: "",
   name: chatId.value == "1" ? "小扈" : "老胡",
@@ -209,6 +209,7 @@ const choose = async (item: any) => {
     showToast.success("删除成功");
   } else {
     let msgItem = msgList.value.find((item: any) => item.msgId == msgId.value);
+    console.log(msgItem);
     try {
       await copy(msgItem.msg || msgItem.picImg);
       showToast.success("复制成功");
