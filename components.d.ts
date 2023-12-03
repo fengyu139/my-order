@@ -32,7 +32,6 @@ declare module 'vue' {
     NutNavbar: typeof import('@nutui/nutui')['Navbar']
     NutOverlay: typeof import('@nutui/nutui')['Overlay']
     NutPicker: typeof import('@nutui/nutui')['Picker']
-    NutPopover: typeof import('@nutui/nutui')['Popover']
     NutPopup: typeof import('@nutui/nutui')['Popup']
     NutPrice: typeof import('@nutui/nutui')['Price']
     NutPullRefresh: typeof import('@nutui/nutui')['PullRefresh']

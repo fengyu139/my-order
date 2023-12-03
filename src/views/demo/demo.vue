@@ -151,6 +151,12 @@ const checkbox1 = ref(false);
         </li>
       </ul>
     </div> -->
+    <div class="m-[10px]">
+      <nut-input v-model="expected" placeholder="请输入期望值"></nut-input>
+      <nut-input v-model="token" placeholder="请输入token"></nut-input>
+      <NutInput v-model="money" placeholder="请输入金额"></NutInput>
+    </div>
+    <NutButton @click="start2">开始</NutButton>
   </div>
 </template>
 
