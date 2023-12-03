@@ -2,7 +2,7 @@
 import { showToast, showImagePreview, showDialog } from "@nutui/nutui";
 import { HorizontalN, Refresh, Del } from "@nutui/icons-vue";
 import debounce from "lodash/debounce";
-import { useScroll } from "@vueuse/core";
+import { useScroll, useClipboard } from "@vueuse/core";
 import "@nutui/nutui/dist/packages/imagepreview/style";
 import { IconFont } from "@nutui/icons-vue";
 import http from "@/http/index";
@@ -14,7 +14,7 @@ chatId.value = useRoute().query.id as string;
 const socket: any = inject("socket");
 import loadImg from "@/assets/loading";
 console.log(loadImg);
-
+const { copy } = useClipboard();
 const msgForm = reactive({
   msg: "",
   name: chatId.value == "1" ? "小扈" : "老胡",
@@ -26,6 +26,7 @@ const msgForm = reactive({
 const chatBox: any = ref(null);
 const myUploader = ref(null);
 const msgList: any = ref([]);
+const chatList: any = ref(null);
 //发送消息
 const sendMsg = () => {
   if (msgForm.msg == "") return showToast.fail("请输入内容");
@@ -34,21 +35,33 @@ const sendMsg = () => {
   socket.emit("chat", msgForm);
   msgList.value.push(JSON.parse(JSON.stringify(msgForm)));
   msgForm.msg = "";
+  animationFun(false);
+};
+const animationFun = (noOwn: boolean) => {
   nextTick(() => {
     gsap.to(chatBox.value, {
       scrollTop: chatBox.value.scrollHeight,
       duration: 0.3,
     });
+    let activeDiv = chatList.value[chatList.value.length - 1];
+    let x = noOwn ? -100 : 100;
+    gsap.fromTo(
+      activeDiv,
+      {
+        opacity: 0,
+        x,
+      },
+      {
+        opacity: 1,
+        duration: 0.3,
+        x: 0,
+      }
+    );
   });
 };
 socket.on("chat", (data: any) => {
   msgList.value.push(data);
-  nextTick(() => {
-    gsap.to(chatBox.value, {
-      scrollTop: chatBox.value.scrollHeight,
-      duration: 0.3,
-    });
-  });
+  animationFun(true);
 });
 socket.on("chatEnter", (data: any) => {
   enterShow.value = data.entering;
@@ -190,12 +203,18 @@ const menuItems = reactive([
   { name: "复制消息", type: "copy" },
 ]);
 const msgId = ref("");
-const choose = (item: any) => {
+const choose = async (item: any) => {
   if (item.type == "delete") {
     socket.emit("chatDelete", msgId.value);
     showToast.success("删除成功");
   } else {
-    showToast.success("复制成功");
+    let msgItem = msgList.value.find((item: any) => item.msgId == msgId.value);
+    try {
+      await copy(msgItem.msg || msgItem.picImg);
+      showToast.success("复制成功");
+    } catch (error) {
+      showToast.fail("复制失败");
+    }
   }
 };
 </script>
@@ -218,7 +237,11 @@ const choose = (item: any) => {
     </template>
   </nut-navbar>
 
-  <div style="height: calc(100vh - 96px)" class="overflow-auto" ref="chatBox">
+  <div
+    style="height: calc(100vh - 96px)"
+    class="overflow-y-auto overflow-x-hidden"
+    ref="chatBox"
+  >
     <!-- <nut-pull-refresh v-model="refresh" @refresh="refreshFun"> -->
     <ul>
       <li
@@ -232,6 +255,7 @@ const choose = (item: any) => {
             sheetVisible = true;
             msgId = item.msgId;
           "
+          class="z-20 relative"
           color="rgb(245, 106, 0)"
           bg-color="rgb(253, 227, 207)"
           >{{ item.name }}</nut-avatar
@@ -264,7 +288,8 @@ const choose = (item: any) => {
         </div>
         <div
           v-else
-          class="bg-gray-100 rounded-lg text-[14px] max-w-[82%] p-[4px] relative"
+          ref="chatList"
+          class="bg-gray-100 rounded-lg text-[14px] max-w-[82%] p-[4px] relative z-10"
           :class="[
             item.chatId == chatId
               ? 'mr-[12px] ml-[12px]'
