@@ -157,6 +157,9 @@ const checkbox1 = ref(false);
       <NutInput v-model="money" placeholder="请输入金额"></NutInput>
     </div>
     <NutButton @click="start2">开始</NutButton>
+    <NutButton style="margin-left: 20px" @click="stop" type="warning"
+      >结束</NutButton
+    >
   </div>
 </template>
 
