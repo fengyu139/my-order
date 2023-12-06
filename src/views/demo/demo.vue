@@ -103,6 +103,22 @@ const token = ref("");
 const expected = ref("");
 const money = ref("");
 const checkbox1 = ref(false);
+const sYtoken = ref("");
+const start3 = async () => {
+  if (!sYtoken.value) {
+    return showToast.fail("请输入速盈token");
+  }
+  await http.get("/sYstart", {
+    params: {
+      token: sYtoken.value,
+    },
+  });
+  showToast.success("成功");
+};
+const stop2 = async () => {
+  await http.get("/sYstop");
+  showToast.success("成功");
+};
 </script>
 
 <template>
@@ -158,6 +174,11 @@ const checkbox1 = ref(false);
     </div>
     <NutButton @click="start2">开始</NutButton>
     <NutButton style="margin-left: 20px" @click="stop" type="warning"
+      >结束</NutButton
+    >
+    <nut-input v-model="sYtoken" placeholder="速盈token"></nut-input>
+    <NutButton @click="start3">开始</NutButton>
+    <NutButton style="margin-left: 20px" @click="stop2" type="warning"
       >结束</NutButton
     >
   </div>
