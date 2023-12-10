@@ -17,7 +17,6 @@ const animationHook = () => {
     oDiv.style.top = a.y + "px";
     oDiv.style.width = "30px";
     oDiv.style.height = "30px";
-    console.log(url);
     const image = new Image();
     image.src = url;
     oDiv.appendChild(image);
@@ -26,7 +25,6 @@ const animationHook = () => {
     oDiv.style.overflow = "hidden";
     oDiv.style.transform = `translate3d(0, 0, 0)`;
     setTimeout(() => {
-      console.log(b);
       gsap.to(oDiv, {
         motionPath: {
           path: [

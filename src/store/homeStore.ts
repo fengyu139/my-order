@@ -1,7 +1,10 @@
 import { ref, reactive, computed, watch } from "vue";
+import * as math from "mathjs";
 import cloneDeep from "lodash/cloneDeep";
 import { defineStore } from "pinia";
 import http from "@/http/index";
+console.log(math);
+
 interface Product {
   id: number;
   name: string;
@@ -46,7 +49,10 @@ export const useHomeStore = defineStore("homeStore", () => {
           name: item.name,
           count: item.count,
           price: item.price,
-          money: item.price * item.count,
+          money: math.multiply(
+            math.bignumber(item.price),
+            math.bignumber(item.count)
+          ),
         });
       }
     });
