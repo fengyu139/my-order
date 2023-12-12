@@ -2,7 +2,7 @@
 import { showToast, showImagePreview, showDialog } from "@nutui/nutui";
 import { HorizontalN, Refresh, Del } from "@nutui/icons-vue";
 import debounce from "lodash/debounce";
-import { useScroll, useClipboard } from "@vueuse/core";
+import { useScroll, useClipboard, useDocumentVisibility } from "@vueuse/core";
 import "@nutui/nutui/dist/packages/imagepreview/style";
 import { IconFont } from "@nutui/icons-vue";
 import http from "@/http/index";
@@ -13,6 +13,7 @@ const chatId = useStorage("chatId", "");
 chatId.value = useRoute().query.id as string;
 const socket: any = inject("socket");
 import loadImg from "@/assets/loading";
+import AbIcon from "@/components/abIcon.vue";
 console.log(loadImg);
 const { copy } = useClipboard({ legacy: true });
 const msgForm = reactive({
@@ -23,6 +24,7 @@ const msgForm = reactive({
   type: "text",
   msgId: "",
 });
+const docVisibility = useDocumentVisibility();
 const chatBox: any = ref(null);
 const myUploader = ref(null);
 const msgList: any = ref([]);
@@ -40,10 +42,10 @@ const sendMsg = () => {
 const animationFun = (noOwn: boolean) => {
   nextTick(() => {
     gsap.to(chatBox.value, {
-      scrollTop: chatBox.value.scrollHeight,
+      scrollTop: chatBox.value?.scrollHeight,
       duration: 0.3,
     });
-    let activeDiv = chatList.value[chatList.value.length - 1];
+    let activeDiv = chatList.value[chatList.value?.length - 1];
     let x = noOwn ? -100 : 100;
     gsap.fromTo(
       activeDiv,
@@ -57,6 +59,9 @@ const animationFun = (noOwn: boolean) => {
         x: 0,
       }
     );
+    if (noOwn) {
+      observer.observe(activeDiv);
+    }
   });
 };
 socket.on("chat", (data: any) => {
@@ -72,7 +77,15 @@ socket.on("chatDelete", (data: any) => {
   });
   msgList.value.splice(msgIndex, 1);
 });
-
+socket.on("read", (data: any) => {
+  data.forEach((item: any) => {
+    let msgIndex = msgList.value.findIndex((item2: any) => {
+      return item2.msgId == (item.msgId || item);
+    });
+    msgList.value[msgIndex].isRead = true;
+  });
+  // enterShow.value = data.entering;
+});
 const fileToDataURL = (file: Blob): Promise<any> => {
   return new Promise((resolve) => {
     const reader = new FileReader();
@@ -155,6 +168,12 @@ const getMsgList = async () => {
         scrollTop: chatBox.value.scrollHeight,
         duration: 0.5,
       });
+      let otherMsg = msgList.value.filter(
+        (item: any) => item.chatId != chatId.value
+      );
+      if (otherMsg.length > 0) {
+        socket.emit("read", otherMsg);
+      }
       // chatBox.value.scrollTop = chatBox.value.scrollHeight;
     }, 800);
   }
@@ -218,6 +237,31 @@ const choose = async (item: any) => {
     }
   }
 };
+const observer = new IntersectionObserver(
+  (entries) => {
+    // 这个回调会在被观察元素进入或离开视窗时调用
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        console.log(dayjs().format("YYYY-MM-DD HH:mm:ss"));
+        console.log(docVisibility.value);
+
+        if (docVisibility.value == "visible") {
+          socket.emit("read", [entry.target.dataset.id]);
+        }
+      }
+
+      // 这里可以处理多个被观察元素的情况
+    });
+  },
+  {
+    // 这里可以添加 Intersection Observer 的配置选项
+  }
+);
+
+// 遍历每个列表项，并开始观察
+// this.$refs.listItem.forEach((item, index) => {
+//   observer.observe(item);
+// });
 </script>
 
 <template>
@@ -249,7 +293,7 @@ const choose = async (item: any) => {
         class="flex mt-[10px] mb-[24px]"
         :class="{ 'flex-row-reverse': item.chatId == chatId }"
         v-for="item in msgList"
-        :key="item.chatId"
+        :key="item.msgId"
       >
         <nut-avatar
           @click="
@@ -291,6 +335,7 @@ const choose = async (item: any) => {
           v-else
           ref="chatList"
           class="bg-gray-100 rounded-lg text-[14px] max-w-[82%] p-[4px] relative z-10"
+          :data-id="item.msgId"
           :class="[
             item.chatId == chatId
               ? 'mr-[12px] ml-[12px]'
@@ -301,6 +346,19 @@ const choose = async (item: any) => {
             class="inline-block w-full overflow-hidden"
             v-html="item.msg"
           ></span>
+          <span
+            v-if="item.chatId == chatId"
+            class="absolute left-[-20px] top-[10px] text-[#858585]"
+          >
+            <AbIcon
+              size="18"
+              :icon="
+                item.isRead
+                  ? 'ion:checkmark-done-outline'
+                  : 'ion:checkmark-outline'
+              "
+            ></AbIcon>
+          </span>
           <span
             class="absolute text-[10px] text-gray-400 bottom-[-14px] whitespace-nowrap"
             :class="[item.chatId == chatId ? 'right-0' : 'left-0']"
@@ -354,9 +412,13 @@ const choose = async (item: any) => {
             style="margin-left: 10px"
             type="primary"
             size="small"
+            icon
             @click="sendMsg"
-            >发 送</nut-button
-          >
+            >发送
+            <template #icon>
+              <AbIcon icon="ion:paper-plane-outline"></AbIcon>
+            </template>
+          </nut-button>
         </div>
       </template>
     </nut-input>

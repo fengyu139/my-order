@@ -8,12 +8,14 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AbBall: typeof import('./src/components/abBall.vue')['default']
+    AbIcon: typeof import('./src/components/abIcon.vue')['default']
     AbNumInput: typeof import('./src/components/abNumInput.vue')['default']
     AbOrderItem: typeof import('./src/components/abOrderItem.vue')['default']
     AbPage: typeof import('./src/components/abPage.vue')['default']
     AbTabbar: typeof import('./src/components/abTabbar.vue')['default']
     AbToast: typeof import('./src/components/abToast.vue')['default']
     HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
+    Icon: typeof import('./src/components/icon.vue')['default']
     NutActionSheet: typeof import('@nutui/nutui')['ActionSheet']
     NutAnimate: typeof import('@nutui/nutui')['Animate']
     NutAvatar: typeof import('@nutui/nutui')['Avatar']
@@ -50,5 +52,6 @@ declare module 'vue' {
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SlotDemo: typeof import('./src/components/slotDemo.vue')['default']
+    SvgIcon: typeof import('./src/components/svgIcon.vue')['default']
   }
 }
