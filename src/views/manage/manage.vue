@@ -5,6 +5,7 @@ import { Button, showToast } from "@nutui/nutui";
 import { Plus } from "@nutui/icons-vue";
 import { h } from "vue";
 import http from "@/http/index";
+import AbIcon from "@/components/abIcon.vue";
 const store = useHomeStore();
 store.getMenu();
 const columns = reactive([
@@ -284,8 +285,15 @@ const beforeUpload = async (file: File[]) => {
           </nut-form-item>
           <nut-cell>
             <nut-button block type="primary" @click="submit"
-              >确认{{ formType == "edit" ? "修改" : "添加" }}</nut-button
-            >
+              >确认{{ formType == "edit" ? "修改" : "添加" }}
+              <template #icon>
+                <AbIcon
+                  :icon="
+                    formType == 'edit' ? 'mdi:circle-edit-outline' : 'ion:plus'
+                  "
+                ></AbIcon>
+              </template>
+            </nut-button>
           </nut-cell>
           <nut-cell>
             <nut-button
@@ -294,8 +302,11 @@ const beforeUpload = async (file: File[]) => {
               v-if="formType == 'edit'"
               @click="deleteItem"
             >
-              删 除</nut-button
-            >
+              删 除
+              <template #icon>
+                <AbIcon icon="ion:trash-outline"></AbIcon>
+              </template>
+            </nut-button>
           </nut-cell>
         </nut-form>
       </div>

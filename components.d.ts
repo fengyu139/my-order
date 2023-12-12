@@ -15,7 +15,6 @@ declare module 'vue' {
     AbTabbar: typeof import('./src/components/abTabbar.vue')['default']
     AbToast: typeof import('./src/components/abToast.vue')['default']
     HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
-    Icon: typeof import('./src/components/icon.vue')['default']
     NutActionSheet: typeof import('@nutui/nutui')['ActionSheet']
     NutAnimate: typeof import('@nutui/nutui')['Animate']
     NutAvatar: typeof import('@nutui/nutui')['Avatar']

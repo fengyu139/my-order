@@ -11,6 +11,7 @@ const router = useRouter();
 const route = useRoute();
 import http from "@/http/index";
 import PayButton from "./payButton.vue";
+import AbIcon from "@/components/abIcon.vue";
 const props = defineProps(["id", "desk"]);
 const store = useHomeStore();
 const storeOrder = useStorage("storeOrder", "");
@@ -271,8 +272,11 @@ onUpdated(() => {
         type="primary"
         size="small"
         @click="toSubmit"
-        >提交订单</nut-button
-      >
+        >提交
+        <template #icon>
+          <AbIcon icon="ion:cart-outline"></AbIcon>
+        </template>
+      </nut-button>
       <nut-button
         v-if="isAddBtn"
         type="primary"
