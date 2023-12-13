@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { Order, Home, My2, Scan, Category } from "@nutui/icons-vue";
+import AbIcon from "./abIcon.vue";
 const route = useRoute();
 const tabList = [
   {
@@ -15,17 +16,19 @@ const tabList = [
   {
     tabTitle: "管理",
     to: "/manage",
-    icon: Scan,
+    icon: h(() =>
+      h(AbIcon, { icon: "ion:file-tray-stacked-outline", size: 20 })
+    ),
   },
   {
     tabTitle: "统计",
     to: "/statistics",
-    icon: Category,
+    icon: h(() => h(AbIcon, { icon: "fa:pie-chart", size: 18 })),
   },
   {
     tabTitle: "我的",
     to: "/myProfile",
-    icon: My2,
+    icon: h(AbIcon, { icon: "ion:person-outline", size: 20 }),
   },
 ];
 const tabSwitch = (res) => {

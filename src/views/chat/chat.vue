@@ -67,6 +67,9 @@ const animationFun = (noOwn: boolean) => {
 socket.on("chat", (data: any) => {
   msgList.value.push(data);
   animationFun(true);
+  if (docVisibility.value != "visible" && chatId.value == "2") {
+    alert("有消息了");
+  }
 });
 socket.on("chatEnter", (data: any) => {
   enterShow.value = data.entering;
@@ -257,7 +260,6 @@ const observer = new IntersectionObserver(
     // 这里可以添加 Intersection Observer 的配置选项
   }
 );
-
 // 遍历每个列表项，并开始观察
 // this.$refs.listItem.forEach((item, index) => {
 //   observer.observe(item);
