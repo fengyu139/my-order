@@ -43,14 +43,16 @@ const add = (event: any, url: string) => {
           class="text-[12px] text-gray-500"
           >/{{ item.unit || "串" }}</span
         >
-        <nut-input-number
-          button-size="26"
-          input-width="32"
-          v-model="item.count"
-          :disabled="isFinish || disable"
-          min="0"
-          @add="add($event, item.picImg)"
-        />
+        <div>
+          <nut-input-number
+            button-size="26"
+            input-width="32"
+            v-model="item.count"
+            :disabled="isFinish || disable"
+            min="0"
+            @add="add($event, item.picImg)"
+          />
+        </div>
       </div>
     </li>
   </ul>
