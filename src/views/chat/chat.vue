@@ -157,7 +157,7 @@ const downloadFile = (url: string) => {
   a.click();
 };
 onMounted(() => {});
-const pageSize = ref(10);
+const pageSize = ref(20);
 const pageNum = ref(1);
 const getMsgList = async () => {
   let res = await http.get("/chatList", {
@@ -191,8 +191,10 @@ const { y, directions } = useScroll(chatBox, {
 });
 const refreshFun = debounce(async () => {
   pageNum.value++;
+  let scrollHeight = chatBox.value?.scrollHeight;
   await getMsgList();
-  y.value = 400;
+  y.value = chatBox.value?.scrollHeight - scrollHeight - 10;
+  // console.log(chatBox.value?.scrollHeight);
 }, 500);
 const refreshFun2 = () => {
   pageNum.value = 1;
