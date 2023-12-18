@@ -3,8 +3,9 @@ import OrderBottom from "@/views/order/orderBottom.vue";
 import ProductList from "@/views/home/productList.vue";
 import { useHomeStore } from "@/store/homeStore";
 import { Search2, Refresh } from "@nutui/icons-vue";
-import { showDialog } from "@nutui/nutui";
+import { showDialog, showToast } from "@nutui/nutui";
 import { useWindowSize } from "@vueuse/core";
+import AbIcon from "@/components/abIcon.vue";
 const { height } = useWindowSize();
 const store = useHomeStore();
 const route = useRoute();
@@ -51,8 +52,25 @@ provide("disable", disable);
 const orderName = computed(() => {
   return route.query.orderName;
 });
+const deskNum = ref("");
+const showDesk = ref(false);
 const rightClick = () => {
-  router.go(0);
+  if (!store.detailData.desk && !route.query.desk) {
+    showDesk.value = true;
+  } else {
+    router.go(0);
+  }
+};
+const updateDesk = async () => {
+  if (!deskNum.value) return;
+  let res = await store.updateOrder({
+    id: store.detailData.id,
+    desk: deskNum.value,
+  });
+  if (res.code == 1) {
+    showToast.success("成功");
+    showDesk.value = false;
+  }
 };
 </script>
 
@@ -69,6 +87,10 @@ const rightClick = () => {
     </template>
     <template #right v-if="!orderName">
       <Refresh width="16px" /><span class="ml-[4px]">刷新订单</span>
+    </template>
+    <template #right v-if="!store.detailData.desk && !route.query.desk">
+      <AbIcon icon="ion:settings-outline" size="16"></AbIcon>
+      <span class="ml-[4px]">桌号</span>
     </template>
   </nut-navbar>
   <nut-searchbar
@@ -114,6 +136,18 @@ const rightClick = () => {
       ></nut-empty>
     </div>
   </nut-popup>
+  <NutDialog
+    v-model:visible="showDesk"
+    title="提示"
+    @ok="updateDesk"
+    :okAutoClose="false"
+  >
+    <NutInput
+      v-model="deskNum"
+      type="digit"
+      placeholder="请输入桌号"
+    ></NutInput>
+  </NutDialog>
 </template>
 
 <style lang="scss" scoped>

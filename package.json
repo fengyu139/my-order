@@ -11,7 +11,7 @@
   "dependencies": {
     "@lucky-canvas/vue": "^0.1.11",
     "@nutui/icons-vue": "^0.1.1",
-    "@nutui/nutui": "^4.1.6",
+    "@nutui/nutui": "^4.2.1",
     "@nutui/nutui-bingo": "^1.0.7",
     "@purge-icons/generated": "^0.9.0",
     "@vueuse/core": "^10.5.0",

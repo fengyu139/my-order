@@ -207,7 +207,6 @@ const oName = (item: any) => {
     title="添加订单"
     v-model:visible="visible1"
     @ok="addOrder"
-    :ok-auto-close="false"
   >
     <nut-cell>
       <nut-input
@@ -244,7 +243,6 @@ const oName = (item: any) => {
     title="设置订单已完成"
     v-model:visible="visible2"
     @ok="changeFinish"
-    :ok-auto-close="false"
   >
     <nut-form>
       <nut-form-item label="实收金额">

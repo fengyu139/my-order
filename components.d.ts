@@ -50,6 +50,7 @@ declare module 'vue' {
     NutUploader: typeof import('@nutui/nutui')['Uploader']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    SetDesk: typeof import('./src/components/setDesk.vue')['default']
     SlotDemo: typeof import('./src/components/slotDemo.vue')['default']
     SvgIcon: typeof import('./src/components/svgIcon.vue')['default']
   }
