@@ -81,6 +81,7 @@ const submitOrder = () => {
       .then((res) => {
         store.detailData.id = res.data;
         showToast.success("订单提交成功");
+        visible1.value = false;
         btnStatus.value = false;
         if (res.orderFlag) {
           storeOrder.value = res.data;

@@ -10,6 +10,7 @@ const { height } = useWindowSize();
 const store = useHomeStore();
 const route = useRoute();
 const router = useRouter();
+store.getMenu(0, true);
 if (route.query.id) {
   store.getOrderDetail({ id: route.query.id });
 }
