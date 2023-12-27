@@ -10,13 +10,15 @@ const { height } = useWindowSize();
 const store = useHomeStore();
 const route = useRoute();
 const router = useRouter();
-store.getMenu(0, true);
-if (route.query.id) {
-  store.getOrderDetail({ id: route.query.id });
-}
-if (route.query.desk) {
-  store.getOrderDetail({ desk: Number(route.query.desk), isFinish: false });
-}
+(async () => {
+  if (route.query.id) {
+    store.getOrderDetail({ id: route.query.id });
+  }
+  if (route.query.desk) {
+    await store.getMenu(0, true);
+    store.getOrderDetail({ desk: Number(route.query.desk), isFinish: false });
+  }
+})();
 const value = ref("0");
 const productList: any = ref(null);
 const searchShow = ref(false);

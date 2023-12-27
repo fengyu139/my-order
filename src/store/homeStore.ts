@@ -66,11 +66,14 @@ export const useHomeStore = defineStore("homeStore", () => {
   // 订单列表;
   const orderList = ref<Order[]>([]);
   const getMenu = async (type?: number, filter?: boolean) => {
-    http.post("/getMenu", { type, filter }).then((result) => {
-      productList.length = 0;
-      userProduct.length = 0;
-      userProduct.push(...result.data);
-      productList.push(...result.data);
+    return new Promise((resolve, reject) => {
+      http.post("/getMenu", { type, filter }).then((result) => {
+        productList.length = 0;
+        userProduct.length = 0;
+        userProduct.push(...result.data);
+        productList.push(...result.data);
+        resolve(result.data);
+      });
     });
   };
   const updateOrder = async (data: any) => {
