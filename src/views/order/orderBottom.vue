@@ -217,7 +217,7 @@ const addSubmit = () => {
       btnStatus.value = false;
       let sendMsg = ``;
       items.forEach((item) => {
-        sendMsg += ` <p class="-mt-[8px] text-[14px]">${item.name} &nbsp; * &nbsp; ${item.count}<p/>`;
+        sendMsg += ` ${item.name}  x ${item.count} \n`;
       });
       socket.emit("message", {
         msg: sendMsg,
