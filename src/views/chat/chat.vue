@@ -178,7 +178,7 @@ const getMsgList = async () => {
         socket.emit("read", otherMsg);
       }
       // chatBox.value.scrollTop = chatBox.value.scrollHeight;
-    }, 800);
+    }, 500);
   }
   if (res.data.length == 0) {
     stopWatching();
@@ -197,9 +197,8 @@ const refreshFun = debounce(async () => {
   // console.log(chatBox.value?.scrollHeight);
 }, 500);
 const refreshFun2 = () => {
-  pageNum.value = 1;
+  pageNum.value = 0;
   msgList.value = [];
-  getMsgList();
 };
 const stopWatching = watch(y, () => {
   if (y.value < 11 && directions.top) {
