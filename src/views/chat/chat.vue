@@ -2,7 +2,12 @@
 import { showToast, showImagePreview, showDialog } from "@nutui/nutui";
 import { HorizontalN, Refresh, Del } from "@nutui/icons-vue";
 import debounce from "lodash/debounce";
-import { useScroll, useClipboard, useDocumentVisibility } from "@vueuse/core";
+import {
+  useScroll,
+  useClipboard,
+  useDocumentVisibility,
+  onClickOutside,
+} from "@vueuse/core";
 import "@nutui/nutui/dist/packages/imagepreview/style";
 import { IconFont } from "@nutui/icons-vue";
 import http from "@/http/index";
@@ -14,6 +19,7 @@ chatId.value = useRoute().query.id as string;
 const socket: any = inject("socket");
 import loadImg from "@/assets/loading";
 import AbIcon from "@/components/abIcon.vue";
+import emoji from "./emoji.vue";
 console.log(loadImg);
 const { copy } = useClipboard({ legacy: true });
 const msgForm = reactive({
@@ -24,6 +30,7 @@ const msgForm = reactive({
   type: "text",
   msgId: "",
 });
+const emojiShow = ref(false);
 const docVisibility = useDocumentVisibility();
 const chatBox: any = ref(null);
 const myUploader = ref(null);
@@ -217,7 +224,7 @@ const inputFun = () => {
   timer = setTimeout(() => {
     entering.value = false;
     socket.emit("chatEnter", { entering: false });
-  }, 1500);
+  }, 3000);
 };
 const overlayShow = ref(false);
 const sheetVisible = ref(false);
@@ -265,6 +272,20 @@ const observer = new IntersectionObserver(
 // this.$refs.listItem.forEach((item, index) => {
 //   observer.observe(item);
 // });
+const emojiClick = (item: any) => {
+  msgForm.msg = msgForm.msg + item;
+};
+const emojiRef = ref(null);
+onClickOutside(emojiRef, () => {
+  if (emojiShow.value) {
+    emojiShow.value = false;
+  }
+});
+const changeShow = () => {
+  if (!emojiShow.value) {
+    emojiShow.value = true;
+  }
+};
 </script>
 
 <template>
@@ -400,6 +421,12 @@ const observer = new IntersectionObserver(
     >
       <template #right>
         <div class="flex items-center">
+          <AbIcon
+            icon="carbon:face-wink"
+            size="24"
+            class="mr-[10px] cursor-pointer"
+            @click="changeShow"
+          ></AbIcon>
           <nut-uploader
             ref="myUploader"
             url="/api/upload"
@@ -425,7 +452,14 @@ const observer = new IntersectionObserver(
         </div>
       </template>
     </nut-input>
+    <emoji
+      ref="emojiRef"
+      v-show="emojiShow"
+      @emojiClick="emojiClick"
+      class="absolute top-[-200px]"
+    ></emoji>
   </div>
+
   <nut-overlay v-model:visible="overlayShow">
     <div class="wrapper">
       <img src="@/assets/chatBg.jpg" class="w-full" alt="" srcset="" />
