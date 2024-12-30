@@ -36,6 +36,18 @@ const chatBox: any = ref(null);
 const myUploader = ref(null);
 const msgList: any = ref([]);
 const chatList: any = ref(null);
+const pageColor = computed(() => {
+  if (chatId.value == "2") {
+    return "#282828";
+  }
+  return "#fff";
+});
+const textColor = computed(() => {
+  if (chatId.value == "2") {
+    return "#ccc";
+  }
+  return "#000";
+});
 //发送消息
 const sendMsg = () => {
   if (msgForm.msg == "") return showToast.fail("请输入内容");
@@ -292,9 +304,10 @@ const changeShow = () => {
   <nut-navbar
     title="小小聊天室"
     fixed
-    class="bg-gray-300"
+    style="background: #000"
     @click-right="overlayShow = true"
     @click-back="refreshFun2"
+    :border="false"
   >
     <template #left>
       <div class="flex items-center">
@@ -308,6 +321,7 @@ const changeShow = () => {
 
   <div
     style="height: calc(100vh - 96px)"
+    :style="{ background: pageColor }"
     class="overflow-y-auto overflow-x-hidden"
     ref="chatBox"
   >
@@ -325,8 +339,8 @@ const changeShow = () => {
             msgId = item.msgId;
           "
           class="z-20 relative"
-          color="rgb(245, 106, 0)"
-          bg-color="rgb(253, 227, 207)"
+          :color="chatId == '2' ? textColor : 'rgb(245, 106, 0)'"
+          :bg-color="chatId == '2' ? pageColor : 'rgb(253, 227, 207)'"
           >{{ item.name }}</nut-avatar
         >
         <div
@@ -365,6 +379,10 @@ const changeShow = () => {
               ? 'mr-[12px] ml-[12px]'
               : 'ml-[12px] mr-[12px] bg-green-500 text-white',
           ]"
+          :style="{
+            background: chatId == '2' ? '#000' : '',
+            color: chatId == '2' ? '#ccc' : '',
+          }"
         >
           <span
             class="inline-block w-full overflow-hidden"
@@ -406,7 +424,7 @@ const changeShow = () => {
       </li> -->
     </ul>
   </div>
-  <div class="relative">
+  <div class="relative" :style="{ background: pageColor }">
     <span
       v-show="enterShow"
       class="text-red-500 absolute top-[-10px] text-[12px] left-[4px] z-10 bg-white flex"
@@ -482,6 +500,7 @@ const changeShow = () => {
   background-position: 10px 10px;
   background-size: 100% 100%;
   vertical-align: bottom;
+  --nut-navbar-background: #000;
 }
 :deep(.nut-pull-refresh) {
   height: auto;
@@ -494,4 +513,16 @@ const changeShow = () => {
   top: 12px;
   left: 0;
 }
+:deep(.nut-navbar) {
+  background: v-bind(pageColor);
+  box-shadow: none;
+  // border-bottom: 1px solid #ccc;
+}
+:deep(.nut-input) {
+  background: v-bind(pageColor);
+}
+:deep(.input-text) {
+  color: v-bind(textColor);
+}
+// textColor
 </style>
