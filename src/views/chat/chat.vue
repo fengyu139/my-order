@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { showToast, showImagePreview, showDialog } from "@nutui/nutui";
+import { showToast, showImagePreview } from "@nutui/nutui";
 import { HorizontalN, Refresh, Del } from "@nutui/icons-vue";
 import debounce from "lodash/debounce";
 import {
@@ -33,7 +33,7 @@ const msgForm = reactive({
 const emojiShow = ref(false);
 const docVisibility = useDocumentVisibility();
 const chatBox: any = ref(null);
-const myUploader = ref(null);
+const myUploader = ref<any>(null);
 const msgList: any = ref([]);
 const chatList: any = ref(null);
 const pageColor = computed(() => {
@@ -90,8 +90,22 @@ socket.on("chat", (data: any) => {
     alert("有消息了");
   }
 });
+const entering = ref(false);
+const otherEntering = ref(false);
+let timer: any = null;
+const inputFun = () => {
+  clearTimeout(timer);
+  if (!entering.value) {
+    entering.value = true;
+    socket.emit("chatEnter", { entering: true });
+  }
+  timer = setTimeout(() => {
+    entering.value = false;
+    socket.emit("chatEnter", { entering: false });
+  }, 3000);
+};
 socket.on("chatEnter", (data: any) => {
-  enterShow.value = data.entering;
+  otherEntering.value = data.entering;
 });
 socket.on("chatDelete", (data: any) => {
   let msgIndex = msgList.value.findIndex((item: any) => {
@@ -136,10 +150,10 @@ const successUpload = (res: any) => {
   // showToast.success("上传成功");
   msgForm.msgId = new Date().getTime().toString();
   socket.emit("chat", msgForm);
-  myUploader.value.clearUploadQueue();
+  myUploader.value!.clearUploadQueue();
   msgForm.picImg = "";
 };
-const failure = (err) => {
+const failure = (err: any) => {
   showToast.fail(err);
 };
 const beforeUpload = async (file: File[]) => {
@@ -166,7 +180,7 @@ const beforeUpload = async (file: File[]) => {
 
   return [f];
 };
-function isImage(file) {
+function isImage(file: File) {
   return file.type.startsWith("image/");
 }
 const downloadFile = (url: string) => {
@@ -224,20 +238,6 @@ const stopWatching = watch(y, () => {
     refreshFun();
   }
 });
-const entering = ref(false);
-const enterShow = ref(false);
-let timer: any = null;
-const inputFun = () => {
-  clearTimeout(timer);
-  if (!entering.value) {
-    entering.value = true;
-    socket.emit("chatEnter", { entering: true });
-  }
-  timer = setTimeout(() => {
-    entering.value = false;
-    socket.emit("chatEnter", { entering: false });
-  }, 3000);
-};
 const overlayShow = ref(false);
 const sheetVisible = ref(false);
 const menuItems = reactive([
@@ -269,7 +269,7 @@ const observer = new IntersectionObserver(
         console.log(docVisibility.value);
 
         if (docVisibility.value == "visible") {
-          socket.emit("read", [entry.target.dataset.id]);
+          socket.emit("read", [(entry.target as HTMLElement).dataset.id]);
         }
       }
 
@@ -426,7 +426,7 @@ const changeShow = () => {
   </div>
   <div class="relative" :style="{ background: pageColor }">
     <span
-      v-show="enterShow"
+      v-show="otherEntering"
       class="text-red-500 absolute top-[-10px] text-[12px] left-[4px] z-10 bg-white flex"
       >对方正在输入中<img src="@/assets/loading.js" alt="" srcset=""
     /></span>
