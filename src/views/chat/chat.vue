@@ -14,6 +14,7 @@ import http from "@/http/index";
 import dayjs from "dayjs";
 import "@nutui/icons-vue/dist/style_iconfont.css";
 import gsap from "gsap";
+import Firework from "@/components/Firework.vue";
 const chatId = useStorage("chatId", "");
 chatId.value = useRoute().query.id as string;
 const socket: any = inject("socket");
@@ -88,6 +89,9 @@ socket.on("chat", (data: any) => {
   animationFun(true);
   if (docVisibility.value != "visible" && chatId.value == "2") {
     alert("有消息了");
+  }
+  if (data.msg && data.msg.includes("恭喜")) {
+    fireworkRef.value?.startFirework();
   }
 });
 const entering = ref(false);
@@ -298,6 +302,7 @@ const changeShow = () => {
     emojiShow.value = true;
   }
 };
+const fireworkRef = ref(null);
 </script>
 
 <template>
@@ -489,6 +494,7 @@ const changeShow = () => {
     :menu-items="menuItems"
     @choose="choose"
   />
+  <Firework ref="fireworkRef" />
 </template>
 
 <style lang="scss" scoped>

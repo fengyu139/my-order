@@ -14,6 +14,7 @@ declare module 'vue' {
     AbPage: typeof import('./src/components/abPage.vue')['default']
     AbTabbar: typeof import('./src/components/abTabbar.vue')['default']
     AbToast: typeof import('./src/components/abToast.vue')['default']
+    Firework: typeof import('./src/components/Firework.vue')['default']
     HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
     NutActionSheet: typeof import('@nutui/nutui')['ActionSheet']
     NutAnimate: typeof import('@nutui/nutui')['Animate']

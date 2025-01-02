@@ -50,6 +50,14 @@ const routes = [
     name: "myChat",
     component: () => import("@/views/chat/chat.vue"),
   },
+  {
+    path: "/game",
+    name: "Game",
+    component: () => import("@/views/game/game.vue"),
+    meta: {
+      requiresAuth: false,
+    },
+  },
 ];
 const openRoutes = ["/login", "/orderDetail", "/settlement", "/myChat"];
 const router = createRouter({
@@ -59,10 +67,10 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const store = useLoginStore();
   const { isLogin } = store;
-  if (!isLogin && !openRoutes.includes(to.path)) {
-    next({ path: "/login" });
-    return;
+  if (!to.meta.requiresAuth || localStorage.getItem("token")) {
+    next();
+  } else {
+    next("/login");
   }
-  next();
 });
 export default router;
