@@ -9,6 +9,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     AbBall: typeof import('./src/components/abBall.vue')['default']
     AbIcon: typeof import('./src/components/abIcon.vue')['default']
+    AbImage: typeof import('./src/components/abImage.vue')['default']
     AbNumInput: typeof import('./src/components/abNumInput.vue')['default']
     AbOrderItem: typeof import('./src/components/abOrderItem.vue')['default']
     AbPage: typeof import('./src/components/abPage.vue')['default']

@@ -58,6 +58,14 @@ const routes = [
       requiresAuth: false,
     },
   },
+  {
+    path: "/lucky",
+    name: "Lucky",
+    component: () => import("@/views/lucky/lucky.vue"),
+    meta: {
+      requiresAuth: false,
+    },
+  },
 ];
 const openRoutes = ["/login", "/orderDetail", "/settlement", "/myChat"];
 const router = createRouter({

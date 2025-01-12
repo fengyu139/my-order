@@ -21,6 +21,7 @@ const socket: any = inject("socket");
 import loadImg from "@/assets/loading";
 import AbIcon from "@/components/abIcon.vue";
 import emoji from "./emoji.vue";
+import abImage from "@/components/abImage.vue";
 console.log(loadImg);
 const { copy } = useClipboard({ legacy: true });
 const msgForm = reactive({
@@ -485,7 +486,7 @@ const fireworkRef = ref(null);
 
   <nut-overlay v-model:visible="overlayShow">
     <div class="wrapper">
-      <img src="@/assets/chatBg.jpg" class="w-full" alt="" srcset="" />
+      <abImage src="public/assets/chatBg.jpg" class="w-full" alt="" srcset="" />
     </div>
   </nut-overlay>
   <nut-action-sheet

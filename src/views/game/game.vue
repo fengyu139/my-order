@@ -575,7 +575,7 @@ const isPlayerDisabledForFangPao = (playerId: number) => {
 
 :deep(.nut-button) {
   font-size: 12px;
-  padding: 4px 8px;
+  padding: 4px 14px;
   height: auto;
 }
 
