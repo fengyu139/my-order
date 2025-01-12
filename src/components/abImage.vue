@@ -41,6 +41,11 @@ const emit = defineEmits<{
 const getAvifPath = (path: string) => {
   if (!path) return "";
 
+  // 处理 public 目录下的文件
+  if (path.startsWith("public/")) {
+    path = path.replace("public/", "/");
+  }
+
   // 处理 @ 符号路径
   if (path.startsWith("@/")) {
     path = path.replace("@/", "/src/");
